@@ -3,121 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Alquiler de Vehículos</title>
+    <title>DewLewis Rental Cars</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
         }
+
+        /* Header Styles */
+        .header-nav {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hero Section */
+        .hero {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                            url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920');
+            background-size: cover;
+            background-position: center;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        /* Vehicle Cards */
         .vehicle-card {
-            transition: transform 0.3s ease;
-            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .vehicle-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
+
         .vehicle-image {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
+            transition: transform 0.3s ease;
         }
-        .available {
-            background-color: #4CAF50;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
+
+        .vehicle-card:hover .vehicle-image {
+            transform: scale(1.05);
         }
-        .unavailable {
-            background-color: #f44336;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
+
+        /* Form Styles */
         .form-input {
             width: 100%;
-            padding: 8px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
         }
+
+        .form-input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
         .btn {
-            background-color: #2196F3;
+            background-color: var(--primary-color);
             color: white;
-            padding: 10px 20px;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 600;
         }
+
         .btn:hover {
-            background-color: #1976D2;
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Status Badges */
+        .available {
+            background-color: #10B981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .unavailable {
+            background-color: #EF4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+
+        .social-icon {
+            font-size: 1.5rem;
+            margin: 0 1rem;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px);
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container">
-        <h1 class="text-4xl font-bold text-center my-8 text-gray-800">Sistema de Alquiler de Vehículos</h1>
-        <p class="text-center text-gray-600 mb-8">Bienvenido al sistema de alquiler de vehículos. Selecciona tu vehículo ideal para tu próxima aventura.</p>
-        
-        <div class="section mb-12">
-            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Vehículos Disponibles</h2>
-            <div id="vehiclesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-        </div>
-        
-        <div class="section bg-white p-6 rounded-lg shadow-md mb-12">
-            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Realizar Alquiler</h2>
-            <form id="rentalForm" class="space-y-4">
-                <div>
-                    <label class="block text-gray-700 mb-2" for="vehicleSelect">Selecciona un vehículo:</label>
-                    <select id="vehicleSelect" class="form-input"></select>
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2" for="userName">Nombre del usuario:</label>
-                    <input type="text" id="userName" class="form-input" required>
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2" for="userEmail">Correo electrónico:</label>
-                    <input type="email" id="userEmail" class="form-input" required>
-                </div>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="header-nav">
+        <nav class="container mx-auto px-6 flex justify-between items-center">
+            <div class="logo">DewLewis Rental Cars</div>
+            <div class="hidden md:flex space-x-6 text-white">
+                <a href="#" class="hover:text-gray-200">Inicio</a>
+                <a href="#vehicles" class="hover:text-gray-200">Vehículos</a>
+                <a href="#rental" class="hover:text-gray-200">Alquiler</a>
+                <a href="#contact" class="hover:text-gray-200">Contacto</a>
+            </div>
+        </nav>
+    </header>
 
-                <div>
-                    <label class="block text-gray-700 mb-2" for="userPhone">Número de teléfono:</label>
-                    <input type="text" id="userPhone" class="form-input" required>
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2" for="rentalHours">Horas de alquiler:</label>
-                    <input type="number" id="rentalHours" class="form-input" required min="1">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container mx-auto px-6">
+            <h1 class="text-5xl font-bold mb-4">Tu Aventura Comienza Aquí</h1>
+            <p class="text-xl mb-8">Descubre nuestra flota premium de vehículos para cualquier ocasión</p>
+            <a href="#vehicles" class="btn">Ver Vehículos</a>
+        </div>
+    </section>
+
+    <div class="container mx-auto px-6 py-12">
+        <!-- Vehicles Section -->
+        <section id="vehicles" class="mb-16">
+            <h2 class="text-4xl font-bold text-center mb-12">Nuestra Flota</h2>
+            <div id="vehiclesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+        </section>
+        
+        <!-- Rental Form Section -->
+        <section id="rental" class="bg-white rounded-xl shadow-lg p-8 mb-16">
+            <h2 class="text-3xl font-bold mb-8">Realizar Alquiler</h2>
+            <form id="rentalForm" class="space-y-6">
+                <!-- Form content remains the same but with enhanced styling -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="vehicleSelect">Selecciona un vehículo:</label>
+                        <select id="vehicleSelect" class="form-input"></select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="userName">Nombre del usuario:</label>
+                        <input type="text" id="userName" class="form-input" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="userEmail">Correo electrónico:</label>
+                        <input type="email" id="userEmail" class="form-input" required value="devlewiso@gmail.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="userPhone">Número de teléfono:</label>
+                        <input type="text" id="userPhone" class="form-input" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="rentalHours">Horas de alquiler:</label>
+                        <input type="number" id="rentalHours" class="form-input" required min="1">
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn w-full">Alquilar Vehículo</button>
             </form>
-            <div id="rentalResult" class="mt-4"></div>
-        </div>
-        
-        <div class="section bg-white p-6 rounded-lg shadow-md mb-12">
-            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Resumen de Alquileres</h2>
-            <div id="rentalsList" class="space-y-4"></div>
-        </div>
+            <div id="rentalResult" class="mt-6"></div>
+        </section>
 
-        <div class="section bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Factura</h2>
-            <div id="billOutput" class="mb-4"></div>
+        <!-- Active Rentals Section -->
+        <section class="bg-white rounded-xl shadow-lg p-8 mb-16">
+            <h2 class="text-3xl font-bold mb-8">Alquileres Activos</h2>
+            <div id="rentalsList" class="space-y-4"></div>
+        </section>
+
+        <!-- Bill Section -->
+        <section class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-8">Factura</h2>
+            <div id="billOutput" class="mb-6"></div>
             <div class="flex space-x-4">
-                <button id="printBillBtn" class="btn">Imprimir Factura</button>
-                <button id="emailBillBtn" class="btn">Enviar Factura por Correo</button>
+                <button id="printBillBtn" class="btn">
+                    <i class="fas fa-print mr-2"></i>Imprimir Factura
+                </button>
+                <button id="emailBillBtn" class="btn">
+                    <i class="fas fa-envelope mr-2"></i>Enviar Factura por Correo
+                </button>
             </div>
-        </div>
+        </section>
     </div>
 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">DewLewis Rental Cars</h3>
+                    <p>Tu mejor opción para alquiler de vehículos en Trinidad</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contacto</h3>
+                    <p>Email: devlewiso@gmail.com</p>
+                    <p>Ubicación: Trinidad</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Síguenos</h3>
+                    <div class="flex mt-4">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-12 pt-8 border-t border-blue-600">
+                <p>&copy; 2024 DewLewis Rental Cars. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // Clase Vehicle (Vehículo base)
+        // Las clases Vehicle, Car, Bike permanecen iguales
         class Vehicle {
             constructor(brand, model, hourlyRate, imageUrl) {
                 this.brand = brand;
@@ -140,7 +274,6 @@
             }
         }
 
-        // Clase Car (Coche)
         class Car extends Vehicle {
             constructor(brand, model, hourlyRate, doors, imageUrl) {
                 super(brand, model, hourlyRate, imageUrl);
@@ -148,7 +281,6 @@
             }
         }
 
-        // Clase Bike (Moto)
         class Bike extends Vehicle {
             constructor(brand, model, hourlyRate, type, imageUrl) {
                 super(brand, model, hourlyRate, imageUrl);
@@ -156,7 +288,7 @@
             }
         }
 
-        // Clase RentalSystem (Sistema de Alquiler)
+        // Sistema de alquiler mejorado
         class RentalSystem {
             constructor() {
                 this.vehicles = [];
@@ -167,13 +299,25 @@
                 this.vehicles.push(vehicle);
             }
 
+            rentVehicle(vehicleModel, user, hours, contactInfo) {
+                const vehicle = this.vehicles.find(v => v.model === vehicleModel && v.isAvailable);
+                if (vehicle) {
+                    const rental = new Rental(vehicle, user, hours, contactInfo);
+                    this.rentals.push(rental);
+                    return rental;
+                }
+                return null;
+            }
+
             listAvailableVehicles() {
                 return this.vehicles.map(vehicle => `
-                    <div class="vehicle-card bg-white">
-                        <img src="${vehicle.imageUrl}" alt="${vehicle.model}" class="vehicle-image">
-                        <div class="p-4">
-                            <h3 class="text-xl font-semibold mb-2">${vehicle.brand} ${vehicle.model}</h3>
-                            <p class="text-gray-600 mb-2">Tarifa por hora: $${vehicle.hourlyRate.toFixed(2)}</p>
+                    <div class="vehicle-card">
+                        <div class="relative overflow-hidden">
+                            <img src="${vehicle.imageUrl}" alt="${vehicle.model}" class="vehicle-image">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">${vehicle.brand} ${vehicle.model}</h3>
+                            <p class="text-gray-600 mb-4">Tarifa por hora: $${vehicle.hourlyRate.toFixed(2)}</p>
                             <span class="${vehicle.isAvailable ? 'available' : 'unavailable'}">
                                 ${vehicle.isAvailable ? 'Disponible' : 'Alquilado'}
                             </span>
@@ -183,38 +327,33 @@
             }
         }
 
-        // Crear el sistema de alquiler
-        const rentalSystem = new RentalSystem();
+        // Clase Rental
+        class Rental {
+            constructor(vehicle, user, hours, contactInfo) {
+                this.vehicle = vehicle;
+                this.user = user;
+                this.hours = hours;
+                this.contactInfo = contactInfo;
+                this.cost = this.vehicle.calculateRentalCost(hours);
+                this.vehicle.markAsRented();
+            }
 
-        // Añadir vehículos con imágenes reales
-        rentalSystem.addVehicle(new Car("Toyota", "Corolla", 10, 4, "https://images.unsplash.com/photo-1626072778068-1903e2d41444"));
-        rentalSystem.addVehicle(new Car("Ford", "Mustang", 15, 2, "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd"));
-        rentalSystem.addVehicle(new Bike("Yamaha", "YZF-R3", 8, "Deportiva", "https://images.unsplash.com/photo-1558981806-ec527fa84c39"));
-        rentalSystem.addVehicle(new Bike("Harley-Davidson", "Iron 883", 12, "Crucero", "https://images.unsplash.com/photo-1558981001-1995369a39cd"));
+            getRentalInfo() {
+                return `
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold mb-4">Detalles del Alquiler</h3>
+                        <p class="mb-2"><strong>Usuario:</strong> ${this.user}</p>
+                        <p class="mb-2"><strong>Contacto:</strong> ${this.contactInfo.email}, ${this.contactInfo.phone}</p>
+                        <p class="mb-2"><strong>Vehículo:</strong> ${this.vehicle.brand} ${this.vehicle.model}</p>
+                        <p class="mb-2"><strong>Duración:</strong> ${this.hours} horas</p>
+                        <p class="mb-4"><strong>Costo Total:</strong> $${this.cost.toFixed(2)}</p>
+                        <button onclick="handleReturn('${this.vehicle.model}')" class="btn">
+                            <i class="fas fa-undo mr-2"></i>Devolver Vehículo
+                        </button>
+                    </div>
+                `;
+            }
 
-        // Resto del código JavaScript se mantiene igual que en la versión anterior...
-        
-        // Actualizar la lista de vehículos disponibles
-        function updateVehicleList() {
-            document.getElementById('vehiclesList').innerHTML = rentalSystem.listAvailableVehicles();
-        }
-
-        updateVehicleList();
-
-        // Inicializar el select de vehículos
-        const vehicleSelect = document.getElementById('vehicleSelect');
-        rentalSystem.vehicles.forEach(vehicle => {
-            const option = document.createElement('option');
-            option.value = vehicle.model;
-            option.textContent = `${vehicle.brand} ${vehicle.model}`;
-            vehicleSelect.appendChild(option);
-        });
-
-        // Manejar el formulario de alquiler
-        document.getElementById('rentalForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            // ... (resto del código del manejador del formulario)
-        });
-    </script>
-</body>
-</html>
+            generateBill() {
+                return `
+                    <div class="bg
