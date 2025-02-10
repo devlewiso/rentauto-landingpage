@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Alquiler de Vehículos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .section {
+            margin: 20px 0;
+        }
+        .vehicle-item {
+            display: inline-block;
+            width: 200px;
+            margin: 10px;
+            text-align: center;
+        }
+        .vehicle-status {
+            font-weight: bold;
+        }
+        .available {
+            color: green;
+        }
+        .unavailable {
+            color: red;
+        }
+        #billOutput.active {
+            display: block;
+        }
+        .bill-header, .bill-body, .bill-footer {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Alquiler de Vehículos</h1>
+        <p>Bienvenido al sistema de alquiler de vehículos. Aquí puedes ver nuestra lista de vehículos disponibles, realizar un alquiler, y ver el resumen de tus alquileres.</p>
+        
+        <div class="section">
+            <h2>Vehículos Disponibles</h2>
+            <div id="vehiclesList"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Realizar Alquiler</h2>
+            <form id="rentalForm">
+                <label for="vehicleSelect">Selecciona un vehículo:</label>
+                <select id="vehicleSelect"></select>
+                
+                <label for="userName">Nombre del usuario:</label>
+                <input type="text" id="userName" required>
+                
+                <label for="userEmail">Correo electrónico:</label>
+                <input type="email" id="userEmail" required>
+
+                <label for="userPhone">Número de teléfono:</label>
+                <input type="text" id="userPhone" required>
+                
+                <label for="rentalHours">Horas de alquiler:</label>
+                <input type="number" id="rentalHours" required min="1">
+                
+                <button type="submit">Alquilar Vehículo</button>
+            </form>
+            <div id="rentalResult"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Resumen de Alquileres</h2>
+            <div id="rentalsList"></div>
+        </div>
+
+        <div class="section">
+            <h2>Factura</h2>
+            <div id="billOutput"></div>
+            <button id="printBillBtn">Imprimir Factura</button>
+            <button id="emailBillBtn">Enviar Factura por Correo</button>
+        </div>
+    </div>
+
+    <script>
+        // Clase Vehicle (Vehículo base)
+        class Vehicle {
+            constructor(brand, model, hourlyRate, imageUrl) {
+                this.brand = brand;
+                this.model = model;
+                this.hourlyRate = hourlyRate;
+                this.imageUrl = imageUrl;
+                this.isAvailable = true;
+            }
+
+            calculateRentalCost(hours) {
+                return this.hourlyRate * hours;
+            }
+
+            markAsRented() {
+                this.isAvailable = false;
+            }
+
+            markAsAvailable() {
+                this.isAvailable = true;
+            }
+        }
+
+        // Clase Car (Coche)
+        class Car extends Vehicle {
+            constructor(brand, model, hourlyRate, doors, imageUrl) {
+                super(brand, model, hourlyRate, imageUrl);
+                this.doors = doors;
+            }
+        }
+
+        // Clase Bike (Moto)
+        class Bike extends Vehicle {
+            constructor(brand, model, hourlyRate, type, imageUrl) {
+                super(brand, model, hourlyRate, imageUrl);
+                this.type = type;
+            }
+        }
+
+        // Clase Rental (Alquiler)
+        class Rental {
+            constructor(vehicle, user, hours, contactInfo) {
+                this.vehicle = vehicle;
+                this.user = user;
+                this.hours = hours;
+                this.contactInfo = contactInfo;
+                this.cost = this.vehicle.calculateRentalCost(hours);
+                this.vehicle.markAsRented();
+
+                // Simular la devolución del vehículo después del tiempo alquilado
+                setTimeout(() => {
+                    this.returnVehicle();
+                }, hours * 1000); // Para pruebas rápidas, usamos segundos en lugar de horas
+            }
+
+            getRentalInfo() {
+                return `
+                    Usuario: ${this.user}<br>
+                    Contacto: ${this.contactInfo.email}, ${this.contactInfo.phone}<br>
+                    Vehículo: ${this.vehicle.brand} ${this.vehicle.model}<br>
+                    Duración: ${this.hours} horas<br>
+                    Costo Total: $${this.cost.toFixed(2)}<br>
+                    <button onclick="handleReturn('${this.vehicle.model}')">Devolver Vehículo</button>
+                `;
+            }
+
+            generateBill() {
+                return `
+                    <div class="bill-header">
+                        <h2>Factura de Alquiler</h2>
+                        <p><strong>Cliente:</strong> ${this.user}</p>
+                        <p><strong>Email:</strong> ${this.contactInfo.email}</p>
+                        <p><strong>Teléfono:</strong> ${this.contactInfo.phone}</p>
+                    </div>
+                    <div class="bill-body">
+                        <p><strong>Vehículo:</strong> ${this.vehicle.brand} ${this.vehicle.model}</p>
+                        <p><strong>Duración del alquiler:</strong> ${this.hours} horas</p>
+                        <p><strong>Costo Total:</strong> $${this.cost.toFixed(2)}</p>
+                    </div>
+                    <div class="bill-footer">
+                        <p>¡Gracias por usar nuestro servicio!</p>
+                    </div>
+                `;
+            }
+
+            returnVehicle() {
+                this.vehicle.markAsAvailable();
+                alert(`El vehículo ${this.vehicle.model} ha sido devuelto y ahora está disponible.`);
+                updateVehicleList();
+                updateRentalList();
+            }
+        }
+
+        // Clase RentalSystem (Sistema de Alquiler)
+        class RentalSystem {
+            constructor() {
+                this.vehicles = [];
+                this.rentals = [];
+            }
+
+            addVehicle(vehicle) {
+                this.vehicles.push(vehicle);
+            }
+
+            rentVehicle(vehicleModel, user, hours, contactInfo) {
+                const vehicle = this.vehicles.find(v => v.model === vehicleModel && v.isAvailable);
+                if (vehicle) {
+                    const rental = new Rental(vehicle, user, hours, contactInfo);
+                    this.rentals.push(rental);
+                    return rental;
+                } else {
+                    return null;
+                }
+            }
+
+            listAvailableVehicles() {
+                return this.vehicles.map(vehicle => `
+                    <div class="vehicle-item">
+                        <div>
+                            <strong>Marca:</strong> ${vehicle.brand}<br>
+                            <strong>Modelo:</strong> ${vehicle.model}<br>
+                            <strong>Tarifa por hora:</strong> $${vehicle.hourlyRate.toFixed(2)}<br>
+                            <span class="vehicle-status ${vehicle.isAvailable ? 'available' : 'unavailable'}">
+                                ${vehicle.isAvailable ? 'Disponible' : 'Alquilado'}
+                            </span>
+                        </div>
+                        <img src="${vehicle.imageUrl}" alt="${vehicle.model}">
+                    </div>
+                `).join('');
+            }
+
+            listRentals() {
+                return this.rentals.map(rental => `
+                    <div class="rental-item">
+                        ${rental.getRentalInfo()}
+                    </div>
+                `).join('');
+            }
+
+            returnVehicle(vehicleModel) {
+                const rental = this.rentals.find(r => r.vehicle.model === vehicleModel);
+                if (rental) {
+                    rental.returnVehicle();
+                }
+            }
+        }
+
+        // Crear el sistema de alquiler
+        const rentalSystem = new RentalSystem();
+
+        // Añadir vehículos con imágenes
+        rentalSystem.addVehicle(new Car("Toyota", "Corolla", 10, 4, "https://via.placeholder.com/100"));
+        rentalSystem.addVehicle(new Car("Ford", "Mustang", 15, 2, "https://via.placeholder.com/100"));
+        rentalSystem.addVehicle(new Bike("Yamaha", "YZF-R3", 8, "Deportiva", "https://via.placeholder.com/100"));
+        rentalSystem.addVehicle(new Bike("Harley-Davidson", "Iron 883", 12, "Crucero", "https://via.placeholder.com/100"));
+
+        // Actualizar la lista de vehículos disponibles
+        function updateVehicleList() {
+            document.getElementById('vehiclesList').innerHTML = rentalSystem.listAvailableVehicles();
+        }
+
+        updateVehicleList();
+
+        // Llenar el select con los vehículos
+        const vehicleSelect = document.getElementById('vehicleSelect');
+        rentalSystem.vehicles.forEach(vehicle => {
+            const option = document.createElement('option');
+            option.value = vehicle.model;
+            option.textContent = `${vehicle.brand} ${vehicle.model}`;
+            vehicleSelect.appendChild(option);
+        });
+
+        // Manejar el formulario de alquiler
+        document.getElementById('rentalForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const vehicleModel = document.getElementById('vehicleSelect').value;
+            const userName = document.getElementById('userName').value;
+            const userEmail = document.getElementById('userEmail').value;
+            const userPhone = document.getElementById('userPhone').value;
+            const rentalHours = parseInt(document.getElementById('rentalHours').value);
+
+            const contactInfo = { email: userEmail, phone: userPhone };
+            
+            const rental = rentalSystem.rentVehicle(vehicleModel, userName, rentalHours, contactInfo);
+
+            if (rental) {
+                document.getElementById('rentalResult').innerHTML = rental.getRentalInfo();
+                document.getElementById('billOutput').innerHTML = rental.generateBill();
+                document.getElementById('billOutput').classList.add('active');
+                updateVehicleList();
+                updateRentalList();
+            } else {
+                document.getElementById('rentalResult').innerHTML = 'Error: Vehículo no disponible o no encontrado.';
+            }
+        });
+
+        // Actualizar la lista de alquileres
+        function updateRentalList() {
+            document.getElementById('rentalsList').innerHTML = rentalSystem.listRentals();
+        }
+
+        // Manejar la devolución del vehículo
+        function handleReturn(vehicleModel) {
+            rentalSystem.returnVehicle(vehicleModel);
+        }
+
+        // Imprimir factura
+        document.getElementById('printBillBtn').addEventListener('click', () => {
+            const billSection = document.getElementById('billOutput');
+            const printWindow = window.open('', '', 'height=400,width=600');
+            printWindow.document.write('<html><head><title>Factura</title>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(billSection.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        });
+    </script>
+</body>
+</html>
